@@ -66,8 +66,7 @@ jobs:
           else
               CACHE_TO="type=registry,ref=${{ env.CACHE_IMAGE }},mode=max"
           fi
-          # shellcheck disable=SC2086
-          echo "CACHE_TO=$CACHE_TO" >> $GITHUB_ENV
+          echo "CACHE_TO=$CACHE_TO" >> "$GITHUB_ENV"
 
       - name: "Build test image"
         uses: docker/build-push-action@v5
