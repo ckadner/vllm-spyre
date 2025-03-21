@@ -56,14 +56,14 @@ ENV VLLM_PLUGINS=spyre
 FROM spyre-base as spyre-tests
 
 # set environment variables to run tests
-ENV MASTER_PORT=12355 \
-    MASTER_ADDR=localhost \
+ENV MASTER_ADDR=localhost \
+    MASTER_PORT=12355 \
     DISTRIBUTED_STRATEGY_IGNORE_MODULES=WordEmbedding
 
 # Install test dependencies
 RUN pip install \
+        sentence-transformers \
         pytest \
-        entence-transformers \
         pytest-timeout \
         pytest-forked
 
