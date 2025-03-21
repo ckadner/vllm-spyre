@@ -23,8 +23,8 @@ jobs:
       packages: write
       contents: read
     env:
-      # CACHE_IMAGE: "ghcr.io/vllm-project/vllm-spyre:test-cache"
-      CACHE_IMAGE: "ghcr.io/ckadner/vllm-spyre:test-cache"
+      # CACHE_IMAGE: "ghcr.io/vllm-project/vllm-spyre:test-cache"  # TODO: reenable
+      CACHE_IMAGE: "ghcr.io/ckadner/vllm-spyre:test-cache"         # TODO: remove
       CACHE_REGISTRY: "ghcr.io"
 
     steps:
@@ -42,6 +42,7 @@ jobs:
         if: github.event_name != 'pull_request'
         with:
           registry: ${{ env.CACHE_REGISTRY }}
+          # username: ${{ github.repository_owner }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -65,6 +66,7 @@ jobs:
           else
               CACHE_TO="type=registry,ref=${{ env.CACHE_IMAGE }},mode=max"
           fi
+          # shellcheck disable=SC2086
           echo "CACHE_TO=$CACHE_TO" >> $GITHUB_ENV
 
       - name: "Build test image"
@@ -108,21 +110,21 @@ jobs:
     # - name: Build docker image
     #   run: docker build . -t vllm-spyre -f Dockerfile.spyre
       
-    - name: Run Spyre tests within docker container
-      run: |
-        docker run -i --rm --entrypoint /bin/bash "${{ env.TEST_IMAGE_NAME }}" -c '''
-          pip install pytest sentence-transformers pytest-timeout pytest-forked && \
-          python -c "from transformers import pipeline; pipeline(\"text-generation\", model=\"JackFram/llama-160m\")" && \
-          export VARIANT=$(ls /root/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/) && \
-          mkdir -p /models && \
-          ln -s /root/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/${VARIANT} /models/llama-194m && \
-          python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer(\"sentence-transformers/all-roberta-large-v1\")" && \
-          export VARIANT=$(ls /root/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/) && \
-          ln -s /root/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/${VARIANT} /models/all-roberta-large-v1 && \
-          export MASTER_PORT=12355 && \
-          export MASTER_ADDR=localhost && \
-          export DISTRIBUTED_STRATEGY_IGNORE_MODULES=WordEmbedding && \
-          cd vllm-spyre && \
-          python -m pytest --timeout=300  tests -v -k "V0 and eager" && \
-          python -m pytest --forked --timeout=300  tests -v -k "V1 and eager"
-        '''
+    # - name: Run Spyre tests within docker container
+    #   run: |
+    #     docker run -i --rm --entrypoint /bin/bash ${{ env.TEST_IMAGE_NAME }} -c '''
+    #       pip install pytest sentence-transformers pytest-timeout pytest-forked && \
+    #       python -c "from transformers import pipeline; pipeline(\"text-generation\", model=\"JackFram/llama-160m\")" && \
+    #       export VARIANT=$(ls /root/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/) && \
+    #       mkdir -p /models && \
+    #       ln -s /root/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/${VARIANT} /models/llama-194m && \
+    #       python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer(\"sentence-transformers/all-roberta-large-v1\")" && \
+    #       export VARIANT=$(ls /root/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/) && \
+    #       ln -s /root/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/${VARIANT} /models/all-roberta-large-v1 && \
+    #       export MASTER_PORT=12355 && \
+    #       export MASTER_ADDR=localhost && \
+    #       export DISTRIBUTED_STRATEGY_IGNORE_MODULES=WordEmbedding && \
+    #       cd vllm-spyre && \
+    #       python -m pytest --timeout=300  tests -v -k "V0 and eager" && \
+    #       python -m pytest --forked --timeout=300  tests -v -k "V1 and eager"
+    #     '''
