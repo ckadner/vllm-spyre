@@ -75,9 +75,7 @@ jobs:
               type=gha
               type=registry,ref=${{ env.CACHE_IMAGE }}
           cache-to: ${{ env.CACHE_TO }}
-          push: ${{ github.event_name != 'pull_request' }}
           load: true
-          outputs: type=docker
 
       - name: Run Spyre tests in docker container (V0 and eager)
         run: |
@@ -141,9 +139,7 @@ jobs:
               type=gha
               type=registry,ref=${{ env.CACHE_IMAGE }}
           cache-to: ${{ env.CACHE_TO }}
-          push: ${{ github.event_name != 'pull_request' }}
           load: true
-          outputs: type=docker
 
       - name: Run Spyre tests in docker container (V1 and eager)
         run: |
