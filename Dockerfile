@@ -47,7 +47,7 @@ FROM vllm-base as spyre-base
 
 # Install vllm Spyre plugin
 RUN mkdir /workspace/vllm-spyre
-COPY . /workspace/vllm-spyre
+COPY --exclude tests . /workspace/vllm-spyre
 RUN cd /workspace/vllm-spyre && pip install -v -e .
 ENV VLLM_PLUGINS=spyre
 
@@ -75,6 +75,8 @@ RUN mkdir -p /models \
     && python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-roberta-large-v1')" \
     && export VARIANT=$(ls /root/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/) \
     && ln -s /root/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/${VARIANT} /models/all-roberta-large-v1
+
+COPY tests /workspace/vllm-spyre
 
 
 ## Spyre Release ###############################################################
