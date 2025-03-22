@@ -47,7 +47,7 @@ FROM vllm-base as spyre-base
 
 # Install vllm Spyre plugin
 RUN mkdir /workspace/vllm-spyre
-COPY --exclude tests . /workspace/vllm-spyre
+COPY --exclude=tests . /workspace/vllm-spyre
 RUN cd /workspace/vllm-spyre && pip install -v -e .
 ENV VLLM_PLUGINS=spyre
 
