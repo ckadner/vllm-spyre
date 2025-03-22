@@ -78,7 +78,7 @@ RUN mkdir -p /models \
     && export VARIANT=$(ls /root/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/) \
     && ln -s /root/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/${VARIANT} /models/all-roberta-large-v1
 
-COPY tests /workspace/vllm-spyre
+COPY tests /workspace/vllm-spyre/tests/
 
 
 ## Spyre Release ###############################################################
