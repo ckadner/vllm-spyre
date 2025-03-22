@@ -57,9 +57,8 @@ jobs:
           # TODO: reevaluate findings above
           if [ "${{ github.event_name }}" == "pull_request" ]
           then
-              CACHE_TO="type=gha,mode=max"
               # CACHE_TO="type=gha,mode=min"
-              # CACHE_TO="type=inline"
+              CACHE_TO="type=inline"
           else
               CACHE_TO="type=registry,ref=${{ env.CACHE_IMAGE }},mode=max"
           fi
