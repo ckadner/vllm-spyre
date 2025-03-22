@@ -75,7 +75,8 @@ jobs:
               type=gha
               type=registry,ref=${{ env.CACHE_IMAGE }}
           cache-to: ${{ env.CACHE_TO }}
-          outputs: type=docker,dest=${{ runner.temp }}/test_image.tar
+          push: ${{ github.event_name != 'pull_request' }}
+          load: true
 
       - name: Run Spyre tests in docker container (V0 and eager)
         run: |
@@ -139,8 +140,9 @@ jobs:
               type=gha
               type=registry,ref=${{ env.CACHE_IMAGE }}
           cache-to: ${{ env.CACHE_TO }}
-          outputs: type=docker,dest=${{ runner.temp }}/test_image.tar
-  
+          push: ${{ github.event_name != 'pull_request' }}
+          load: true
+
       - name: Run Spyre tests in docker container (V1 and eager)
         run: |
           docker run -i --rm --entrypoint /bin/bash ${{ env.TEST_IMAGE_NAME }} -c '''
