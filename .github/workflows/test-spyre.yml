@@ -101,12 +101,12 @@ jobs:
         name: "test-image"
         path: ${{ runner.temp }}
 
-    - name: "Load Docker image"
+    - name: "Load test image"
       run: |
         docker load --input ${{ runner.temp }}/test_image.tar
         docker image ls -a
 
-    - name: Run Spyre tests in docker container (vLLM v0)
+    - name: Run Spyre tests in docker container (V0 and eager)
       run: |
         docker run -i --rm --entrypoint /bin/bash ${{ env.TEST_IMAGE_NAME }} -c '''
           cd vllm-spyre && \
@@ -126,12 +126,12 @@ jobs:
         name: "test-image"
         path: ${{ runner.temp }}
 
-    - name: "Load Docker image"
+    - name: "Load test image"
       run: |
         docker load --input ${{ runner.temp }}/test_image.tar
         docker image ls -a
 
-    - name: Run Spyre tests in docker container (vLLM v0)
+    - name: Run Spyre tests in docker container (V1 and eager)
       run: |
         docker run -i --rm --entrypoint /bin/bash ${{ env.TEST_IMAGE_NAME }} -c '''
           cd vllm-spyre && \
