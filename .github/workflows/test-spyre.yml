@@ -14,7 +14,7 @@ defaults:
     shell: bash
 
 env:
-  TEST_IMAGE_NAME: "vllm-spyre"
+  TEST_IMAGE_NAME: "vllm-spyre:test"
   # CACHE_IMAGE: "ghcr.io/vllm-project/vllm-spyre:test-cache"  # TODO: reenable
   CACHE_IMAGE: "ghcr.io/ckadner/vllm-spyre:test-cache"         # TODO: remove
   CACHE_REGISTRY: "ghcr.io"
@@ -44,14 +44,14 @@ jobs:
 
       - name: "Set build cache target"
         run: |
-          # For push to `main` (PR merged), push a new cache image with all layers (cache-mode=max).
+          # For push to `main` (PR was merged), push a new cache image with all layers (cache-mode=max).
           # For PR builds, use GitHub action cache which isolates cached layers by PR/branch.
           # to optimize builds for subsequent pushes to the same PR/branch.
           # Do not set a cache-to image for PR builds to not overwrite the `main` cache image and
-          # to not ping-pong cache images for two or more different PRs.
+          # to not ping-pong cache images for two or more different PRs. 
           # Do not push cache images for each PR or multiple branches to not exceed GitHub package
           # usage and traffic limitations.
-          # UPDATE 2024/02/26: GHA cache appears to have issues, cannot use `cache-to: gha,mode=min`
+          # UPDATE 2025/03/21: GHA cache appears to have issues, cannot use `cache-to: gha,mode=min`
           # if `cache-from: registry,...,mode=max` but `cache-to: gha,mode=max` it takes longer than
           # uncached build and exhausts GHA cache size, so use cache `type=inline` (no external cache).
           # TODO: reevaluate findings above
