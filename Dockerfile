@@ -1,3 +1,5 @@
+#syntax=docker/dockerfile:1.7-labs
+
 ## Global Args #################################################################
 ARG BASE_UBI_IMAGE_TAG=9.5ARG BASE_UBI_IMAGE_TAG=9.4
 ARG PYTHON_VERSION=3.12
