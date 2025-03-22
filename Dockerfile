@@ -13,8 +13,9 @@ ENV PYTHON_VERSION=${PYTHON_VERSION}
 WORKDIR /workspace
 
 # Install some basic utilities
-RUN microdnf update -y \
-    && microdnf install -y \
+RUN --mount=type=cache,target=/root/.cache/microdnf:rw \
+    microdnf update -y && \
+    microdnf install -y --setopt=cachedir=/root/.cache/microdnf \
         python${PYTHON_VERSION}-devel \
         python${PYTHON_VERSION}-pip \
         python${PYTHON_VERSION}-wheel \
@@ -33,7 +34,9 @@ RUN ln -sf $(which python${PYTHON_VERSION}) /usr/bin/python && \
 FROM base as vllm-base
 
 # Download and install vllm
-RUN git clone --depth 1 https://github.com/vllm-project/vllm.git \
+ENV PIP_CACHE_DIR=/root/.cache/pip
+RUN --mount=type=cache,target=/root/.cache/pip \
+    git clone --depth 1 https://github.com/vllm-project/vllm.git \
     && cd vllm \
     && git fetch origin pull/14242/head:spyre-workarounds \
     && git checkout spyre-workarounds \
@@ -50,7 +53,9 @@ FROM vllm-base as spyre-base
 # Install vllm Spyre plugin
 RUN mkdir /workspace/vllm-spyre
 COPY --exclude=tests . /workspace/vllm-spyre
-RUN cd /workspace/vllm-spyre && pip install -v -e .
+RUN --mount=type=cache,target=/root/.cache/pip \
+    cd /workspace/vllm-spyre && \
+    pip install -v -e .
 ENV VLLM_PLUGINS=spyre
 
 
@@ -63,7 +68,8 @@ ENV MASTER_ADDR=localhost \
     DISTRIBUTED_STRATEGY_IGNORE_MODULES=WordEmbedding
 
 # Install test dependencies
-RUN pip install \
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install \
         sentence-transformers \
         pytest \
         pytest-timeout \
