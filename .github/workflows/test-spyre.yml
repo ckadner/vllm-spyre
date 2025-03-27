@@ -54,6 +54,7 @@ jobs:
           # NOTE 2025/03/24: GHA cache appears to have issues, cannot use `cache-to: gha,mode=min`
           # if `cache-from: registry,...,mode=max` but with `cache-to: gha,mode=max` it takes longer than
           # uncached build and exhausts GHA cache size, so use cache `type=inline` (no external cache).
+          # TODO: re-evaluate
           if [ "${{ github.event_name }}" == "pull_request" ]
           then
               CACHE_TO="type=gha,mode=min"
