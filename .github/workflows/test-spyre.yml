@@ -50,13 +50,13 @@ jobs:
           # to not ping-pong cache images for two or more concurrent PRs.
           # Do not push cache images for multiple branches to not exceed GitHub package
           # usage and traffic limitations.
-          # NOTE 2024/03/24: GHA cache appears to have issues, cannot use `cache-to: gha,mode=min`
-          # if `cache-from: registry,...,mode=max` but `cache-to: gha,mode=max` it takes longer than
+          # NOTE 2025/03/24: GHA cache appears to have issues, cannot use `cache-to: gha,mode=min`
+          # if `cache-from: registry,...,mode=max` but with `cache-to: gha,mode=max` it takes longer than
           # uncached build and exhausts GHA cache size, so use cache `type=inline` (no external cache).
           if [ "${{ github.event_name }}" == "pull_request" ]
           then
-              #CACHE_TO="type=gha,mode=min"
-              CACHE_TO="type=inline"
+              CACHE_TO="type=gha,mode=min"
+              # CACHE_TO="type=inline"
           else
               CACHE_TO="type=registry,ref=${{ env.CACHE_IMAGE }},mode=max"
           fi
