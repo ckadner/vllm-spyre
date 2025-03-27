@@ -23,7 +23,8 @@ jobs:
       packages: write
       contents: read
     env:
-      CACHE_IMAGE: "ghcr.io/vllm-project/vllm-spyre:test-cache"
+      # CACHE_IMAGE: "ghcr.io/vllm-project/vllm-spyre:test-cache"
+      CACHE_IMAGE: "ghcr.io/ckadner/vllm-spyre:test-cache"
       CACHE_REGISTRY: "ghcr.io"
 
     steps:
