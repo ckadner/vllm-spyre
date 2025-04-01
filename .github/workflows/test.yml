@@ -116,6 +116,5 @@ jobs:
           DISTRIBUTED_STRATEGY_IGNORE_MODULES: WordEmbedding
         run: |
           source .venv/bin/activate
-          cd vllm-spyre
           uv run pytest ${{ matrix.test_suite.flags }} \
             tests -v -k ${{ matrix.test_suite.name }}
