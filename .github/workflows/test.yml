@@ -16,6 +16,7 @@ env:
   UV_EXTRA_INDEX_URL: "https://download.pytorch.org/whl/cpu"
   # have uv match pip's behaviour for extra index operations
   UV_INDEX_STRATEGY: "unsafe-best-match"
+  VLLM_SPYRE_TEST_MODEL_DIR: "${{ github.workspace }}/models"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -98,13 +99,15 @@ jobs:
 
       - name: "Download HF models"
         run: |
-          mkdir -p /models
+          mkdir -p "${VLLM_SPYRE_TEST_MODEL_DIR}"
+          
           python -c "from transformers import pipeline; pipeline(\"text-generation\", model=\"JackFram/llama-160m\")"
           VARIANT=$(ls /root/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/)
-          ln -s "/root/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/${VARIANT}" /models/llama-194m
+          ln -s "/root/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/${VARIANT}" "${VLLM_SPYRE_TEST_MODEL_DIR}/llama-194m"
+          
           python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer(\"sentence-transformers/all-roberta-large-v1\")"
           VARIANT=$(ls /root/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/)
-          ln -s "/root/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/${VARIANT}" /models/all-roberta-large-v1
+          ln -s "/root/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/${VARIANT}" "${VLLM_SPYRE_TEST_MODEL_DIR}/all-roberta-large-v1"
 
       - name: "Run tests"
         env:
