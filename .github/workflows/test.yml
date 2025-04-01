@@ -91,6 +91,8 @@ jobs:
           # markupsafe==3.0.2 @ https://download.pytorch.org/whl/cpu only has wheels for cp313, not python 3.12
           uv add markupsafe --index force_pypi_index=https://pypi.org/simple
           uv add ${{ matrix.vllm_version }}
+          uv venv .venv --system-site-packages
+          source .venv/bin/activate
           uv pip install --system -v -e .
           uv sync --frozen --group dev
 
@@ -110,6 +112,7 @@ jobs:
           MASTER_ADDR: localhost
           DISTRIBUTED_STRATEGY_IGNORE_MODULES: WordEmbedding
         run: |
+          source .venv/bin/activate
           cd vllm-spyre
           uv run pytest ${{ matrix.test_suite.flags }} \
             tests -v -k ${{ matrix.test_suite.name }}
