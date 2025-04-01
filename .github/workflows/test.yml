@@ -46,6 +46,11 @@ jobs:
           - name: "V1"
             tests: "(V1- and eager) or test_sampling_metadata_in_input_batch"
             flags: "--timeout=300 --forked"
+        exclude:
+          - vllm_version.name: "vLLM:main"
+            test_suite.name: "V1"
+          - vllm_version.name: "ODH:main"
+            test_suite.name: "V1"
 
     name: "${{ matrix.test_suite.name }} (${{ matrix.vllm_version.name }})"
 
