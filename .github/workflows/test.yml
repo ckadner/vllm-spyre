@@ -14,9 +14,8 @@ env:
   VLLM_PLUGINS: "spyre"
   # prefer index for torch cpu version
   UV_EXTRA_INDEX_URL: "https://download.pytorch.org/whl/cpu"
-  UV_INDEX_URL: "https://pypi.org/simple"
   # have uv match pip's behaviour for extra index operations
-  UV_INDEX_STRATEGY: "unsafe-first-match"
+  UV_INDEX_STRATEGY: "unsafe-best-match"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -89,7 +88,8 @@ jobs:
         env:
           VLLM_TARGET_DEVICE: empty
         run: |
-          uv add ${{ matrix.vllm_version }}
+          uv add markupsafe --index force_pypi_index=https://pypi.org/simple
+          uv add vllm ${{ matrix.vllm_version }}
           uv pip install -v -e . --system
           uv sync --frozen --group dev
 
