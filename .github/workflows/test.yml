@@ -16,7 +16,7 @@ env:
   UV_EXTRA_INDEX_URL: "https://download.pytorch.org/whl/cpu"
   UV_INDEX_URL: "https://pypi.org/simple"
   # have uv match pip's behaviour for extra index operations
-  UV_INDEX_STRATEGY: "unsafe-best-match"
+  UV_INDEX_STRATEGY: "unsafe-first-match"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -97,10 +97,10 @@ jobs:
         run: |
           mkdir -p /models
           python -c "from transformers import pipeline; pipeline(\"text-generation\", model=\"JackFram/llama-160m\")"
-          export VARIANT=$(ls /root/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/)
+          VARIANT=$(ls /root/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/)
           ln -s "/root/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/${VARIANT}" /models/llama-194m
           python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer(\"sentence-transformers/all-roberta-large-v1\")"
-          export VARIANT=$(ls /root/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/)
+          VARIANT=$(ls /root/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/)
           ln -s "/root/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/${VARIANT}" /models/all-roberta-large-v1
 
       - name: "Run tests"
