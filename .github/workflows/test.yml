@@ -89,7 +89,7 @@ jobs:
           VLLM_TARGET_DEVICE: empty
         run: |
           uv add markupsafe --index force_pypi_index=https://pypi.org/simple
-          uv add vllm ${{ matrix.vllm_version }}
+          uv add ${{ matrix.vllm_version }}
           uv pip install -v -e . --system
           uv sync --frozen --group dev
 
