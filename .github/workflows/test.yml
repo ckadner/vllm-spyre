@@ -23,24 +23,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  tests:
+  test:
     timeout-minutes: 20
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        pyv: ["3.12"]
+        os: ["ubuntu-latest"]
+        python_version: ["3.12"]
         vllm_version:
           # skip the pypi version as it will not work on CPU
-          - "git+https://github.com/vllm-project/vllm --tag v0.8.0"
-#          - "git+https://github.com/vllm-project/vllm --branch main"
-#          - "git+https://github.com/opendatahub-io/vllm --branch main"
+          - name: "vLLM:v0.8.0"
+            repo: "git+https://github.com/vllm-project/vllm --tag v0.8.0"
+          - name: "vLLM:main"
+            repo: "git+https://github.com/vllm-project/vllm --branch main"
+          - name: "ODH:main"
+            repo: "git+https://github.com/opendatahub-io/vllm --branch main"
         test_suite:
-          - name: "V0 and eager"
+          - name: "V0"
+            tests: "V0 and eager"
             flags: "--timeout=300"
-          - name: "(V1- and eager) or test_sampling_metadata_in_input_batch"
+          - name: "V1"
+            tests: "(V1- and eager) or test_sampling_metadata_in_input_batch"
             flags: "--timeout=300 --forked"
+
+    name: "${{ matrix.test_suite.name }} (${{ matrix.vllm_version.name }})"
 
     steps:
       - name: "Checkout"
@@ -79,7 +86,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
-          python-version: ${{ matrix.pyv }}
+          python-version: ${{ matrix.python_version }}
           enable-cache: true
           ignore-nothing-to-cache: true
           cache-dependency-glob: |
@@ -91,7 +98,7 @@ jobs:
         run: |
           # markupsafe==3.0.2 @ https://download.pytorch.org/whl/cpu only has wheels for cp313, not python 3.12
           uv add markupsafe --index force_pypi_index=https://pypi.org/simple
-          uv add ${{ matrix.vllm_version }}
+          uv add ${{ matrix.vllm_version.repo }}
           uv venv .venv --system-site-packages
           source .venv/bin/activate
           uv pip install -v -e .
@@ -117,4 +124,4 @@ jobs:
         run: |
           source .venv/bin/activate
           uv run pytest ${{ matrix.test_suite.flags }} \
-            tests -v -k "${{ matrix.test_suite.name }}"
+            tests -v -k "${{ matrix.test_suite.tests }}"
