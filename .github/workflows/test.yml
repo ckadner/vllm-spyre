@@ -32,7 +32,7 @@ jobs:
         pyv: ["3.12"]
         vllm_version:
           # skip the pypi version as it will not work on CPU
-          - "git+https://github.com/vllm-project/vllm --tag 0.8.0"
+          - "git+https://github.com/vllm-project/vllm --tag v0.8.0"
 #          - "git+https://github.com/vllm-project/vllm --branch main"
 #          - "git+https://github.com/opendatahub-io/vllm --branch main"
         test_suite:
