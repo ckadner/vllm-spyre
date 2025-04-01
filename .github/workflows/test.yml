@@ -93,7 +93,7 @@ jobs:
           uv add ${{ matrix.vllm_version }}
           uv venv .venv --system-site-packages
           source .venv/bin/activate
-          uv pip install --system -v -e .
+          uv pip install -v -e .
           uv sync --frozen --group dev
 
       - name: "Download HF models"
