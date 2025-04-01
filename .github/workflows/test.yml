@@ -81,7 +81,7 @@ jobs:
           version: "latest"
           python-version: ${{ matrix.pyv }}
           enable-cache: true
-#          ignore-nothing-to-cache: true
+          ignore-nothing-to-cache: true
           cache-dependency-glob: |
             pyproject.toml
 
