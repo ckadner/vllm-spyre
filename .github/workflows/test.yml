@@ -103,11 +103,11 @@ jobs:
           
           python -c "from transformers import pipeline; pipeline(\"text-generation\", model=\"JackFram/llama-160m\")"
           VARIANT=$(ls ~/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/)
-          ln -s "~/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/${VARIANT}" "${VLLM_SPYRE_TEST_MODEL_DIR}/llama-194m"
+          ln -s ~/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/"${VARIANT}" "${VLLM_SPYRE_TEST_MODEL_DIR}/llama-194m"
           
           python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer(\"sentence-transformers/all-roberta-large-v1\")"
           VARIANT=$(ls ~/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/)
-          ln -s "~/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/${VARIANT}" "${VLLM_SPYRE_TEST_MODEL_DIR}/all-roberta-large-v1"
+          ln -s ~/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/"${VARIANT}" "${VLLM_SPYRE_TEST_MODEL_DIR}/all-roberta-large-v1"
 
       - name: "Run tests"
         env:
@@ -117,4 +117,4 @@ jobs:
         run: |
           source .venv/bin/activate
           uv run pytest ${{ matrix.test_suite.flags }} \
-            tests -v -k ${{ matrix.test_suite.name }}
+            tests -v -k "${{ matrix.test_suite.name }}"
