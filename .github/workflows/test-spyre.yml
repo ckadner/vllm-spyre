@@ -64,28 +64,21 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "Cache the ccache cache directory"
-        id: ccache-cache
-        uses: actions/cache@v4
-        with:
-          path: /home/runner/.cache/ccache
-          key: ${{ runner.os }}
-
       - name: "Cache HuggingFace hub cache"
-        id: hf-cache
+        id: hub-cache
         uses: actions/cache@v4
         with:
           path: ~/.cache/huggingface/hub
-          key: ${{ runner.os }}
+          key: ${{ runner.os }}-hub-cache
 
-      - name: "Install build dependencies"
-        run: |
-          sudo apt update
-          sudo apt install --no-install-recommends -y \
-            ccache \
-            libnuma-dev \
-            libdnnl-dev \
-            opencl-dev
+#      - name: "Install build dependencies"
+#        run: |
+#          sudo apt update
+#          sudo apt install --no-install-recommends -y \
+#            ccache \
+#            libnuma-dev \
+#            libdnnl-dev \
+#            opencl-dev
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -94,7 +87,7 @@ jobs:
 
       # since GH action runners are one-and-done, we can install all requirements
       # into the system packages and cache and reuse all the installed Python system packages
-      - name: Cache dependencies
+      - name: "Cache Python packages"
         uses: actions/cache@v4
         id: python-cache
         with:
