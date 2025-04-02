@@ -1,0 +1,136 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  # force output to be colored for non-tty GHA runner shell
+  FORCE_COLOR: "1"
+  # facilitate testing by building vLLM for CPU when needed
+  VLLM_CPU_DISABLE_AVX512: "true"
+  VLLM_TARGET_DEVICE: "cpu"
+  VLLM_PLUGINS: "spyre"
+  # prefer index for torch cpu version
+  UV_EXTRA_INDEX_URL: "https://download.pytorch.org/whl/cpu"
+  # have uv match pip's behaviour for extra index operations
+  UV_INDEX_STRATEGY: "unsafe-best-match"
+  VLLM_SPYRE_TEST_MODEL_DIR: "${{ github.workspace }}/models"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    timeout-minutes: 20
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest"]
+        python_version: ["3.12"]
+        vllm_version:
+          # skip the pypi version as it will not work on CPU
+          - name: "vLLM:v0.8.0"
+            repo: "git+https://github.com/vllm-project/vllm --tag v0.8.0"
+          - name: "vLLM:main"
+            repo: "git+https://github.com/vllm-project/vllm --branch main"
+          - name: "ODH:main"
+            repo: "git+https://github.com/opendatahub-io/vllm --branch main"
+        test_suite:
+          - name: "V0"
+            tests: "V0 and eager"
+            flags: "--timeout=300"
+          - name: "V1"
+            tests: "(V1- and eager) or test_sampling_metadata_in_input_batch"
+            flags: "--timeout=300 --forked"
+        exclude:
+          - vllm_version:
+              name: "vLLM:main"
+            test_suite:
+              name: "V1"
+          - vllm_version:
+              name: "ODH:main"
+            test_suite:
+              name: "V1"
+
+    name: "${{ matrix.test_suite.name }} (${{ matrix.vllm_version.name }})"
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: "Cache the ccache cache directory"
+        id: ccache-cache
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/.cache/ccache
+          key: ${{ runner.os }}-ccache
+
+      - name: "Cache HuggingFace hub cache"
+        id: hf-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface/hub
+          key: ${{ runner.os }}-hub-cache
+
+      - name: "Install build dependencies"
+        run: |
+          sudo apt update
+          sudo apt install --no-install-recommends -y \
+            ccache \
+            libnuma-dev \
+            libdnnl-dev \
+            opencl-dev
+
+      - name: "Install PyTorch"
+        run: |
+          pip install torch==2.5.1+cpu --index-url https://download.pytorch.org/whl/cpu
+
+      - name: "Install uv"
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          python-version: ${{ matrix.python_version }}
+          enable-cache: true
+          ignore-nothing-to-cache: true
+          cache-dependency-glob: |
+            pyproject.toml
+
+      - name: "Install vLLM with Spyre plugin"
+        env:
+          VLLM_TARGET_DEVICE: empty
+        run: |
+          # markupsafe==3.0.2 @ https://download.pytorch.org/whl/cpu only has wheels for cp313, not python 3.12
+          uv add markupsafe --index force_pypi_index=https://pypi.org/simple
+          uv add ${{ matrix.vllm_version.repo }}
+          uv venv .venv --system-site-packages
+          source .venv/bin/activate
+          uv pip install -v -e .
+          uv sync --frozen --group dev
+
+      - name: "Download HF models"
+        run: |
+          mkdir -p "${VLLM_SPYRE_TEST_MODEL_DIR}"
+          
+          python -c "from transformers import pipeline; pipeline(\"text-generation\", model=\"JackFram/llama-160m\")"
+          VARIANT=$(ls ~/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/)
+          ln -s ~/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/"${VARIANT}" "${VLLM_SPYRE_TEST_MODEL_DIR}/llama-194m"
+          
+          python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer(\"sentence-transformers/all-roberta-large-v1\")"
+          VARIANT=$(ls ~/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/)
+          ln -s ~/.cache/huggingface/hub/models--sentence-transformers--all-roberta-large-v1/snapshots/"${VARIANT}" "${VLLM_SPYRE_TEST_MODEL_DIR}/all-roberta-large-v1"
+
+      - name: "Run tests"
+        env:
+          MASTER_PORT: 12355
+          MASTER_ADDR: localhost
+          DISTRIBUTED_STRATEGY_IGNORE_MODULES: WordEmbedding
+        run: |
+          source .venv/bin/activate
+          uv run pytest ${{ matrix.test_suite.flags }} \
+            tests -v -k "${{ matrix.test_suite.tests }}"
