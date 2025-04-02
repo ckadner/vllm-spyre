@@ -64,13 +64,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "Cache HuggingFace hub cache"
-        id: hub-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/huggingface/hub
-          key: ${{ runner.os }}-hub-cache
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -112,6 +105,13 @@ jobs:
       - name: "Install vLLM-Spyre plugin"
         run: |
           pip install -v -e .
+
+      - name: "Cache HuggingFace hub cache"
+        id: hub-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface/hub
+          key: ${{ runner.os }}-hub-cache
 
       - name: "Download HF models"
         if: steps.hub-cache.outputs.cache-hit != 'true'
