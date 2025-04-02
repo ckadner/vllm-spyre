@@ -34,11 +34,14 @@ jobs:
         vllm_version:
           # skip the pypi version as it will not work on CPU
           - name: "vLLM:v0.8.0"
-            repo: "git+https://github.com/vllm-project/vllm --tag v0.8.0"
+            repo: "https://github.com/vllm-project/vllm.git"
+            rev: "v0.8.0"
           - name: "vLLM:main"
-            repo: "git+https://github.com/vllm-project/vllm --branch main"
+            repo: "https://github.com/vllm-project/vllm.git"
+            rev: "main"
           - name: "ODH:main"
-            repo: "git+https://github.com/opendatahub-io/vllm --branch main"
+            repo: "https://github.com/opendatahub-io/vllm.git"
+            rev: "main"
         test_suite:
           - name: "V0"
             tests: "V0 and eager"
@@ -47,14 +50,8 @@ jobs:
             tests: "(V1- and eager) or test_sampling_metadata_in_input_batch"
             flags: "--timeout=300 --forked"
         exclude:
-          - vllm_version:
-              name: "vLLM:main"
-            test_suite:
-              name: "V1"
-          - vllm_version:
-              name: "ODH:main"
-            test_suite:
-              name: "V1"
+          - vllm_version: { name: "vLLM:main" }, test_suite: { name: "V1" }
+          - vllm_version: { name: "ODH:main" }, test_suite: { name: "V1" }
 
     name: "${{ matrix.test_suite.name }} (${{ matrix.vllm_version.name }})"
 
@@ -80,19 +77,12 @@ jobs:
           restore-keys:
             ${{ runner.os }}-${{ env.pythonLocation }}-
 
-      - name: "Download and install vLLM"
+      - name: "Install PyTorch"
         if: steps.python-cache.outputs.cache-hit != 'true'
         env:
           PIP_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
         run: |
-          git clone --depth 1 https://github.com/vllm-project/vllm.git
-          cd vllm
-          git fetch --tags
-          git checkout v0.8.0
           pip install torch=="2.5.1+cpu" --index-url https://download.pytorch.org/whl/cpu
-          python use_existing_torch.py
-          pip install -r requirements/build.txt
-          SETUPTOOLS_SCM_PRETEND_VERSION=0.8.0 VLLM_TARGET_DEVICE=empty pip install --verbose . --no-build-isolation
 
       - name: "Install Python dependencies"
         if: steps.python-cache.outputs.cache-hit != 'true'
@@ -101,6 +91,19 @@ jobs:
         run: |
           python -m pip install -r requirements.txt
           python -m pip install -r requirements-test.txt
+
+      - name: "Download and install vLLM"
+        if: ${{ (steps.python-cache.outputs.cache-hit != 'true') || (matrix.vllm_version.rev == 'main') }}
+        env:
+          PIP_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
+          SETUPTOOLS_SCM_PRETEND_VERSION: 0.8.0
+          VLLM_TARGET_DEVICE: empty
+        run: |
+          git clone --depth 1 --branch ${{ matrix.vllm_version.rev }} ${{ matrix.vllm_version.repo }}
+          cd vllm
+          python use_existing_torch.py
+          pip install -r requirements/build.txt
+          pip install --verbose . --no-build-isolation
 
       - name: "Install vLLM-Spyre plugin"
         run: |
