@@ -69,14 +69,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /home/runner/.cache/ccache
-          key: ${{ runner.os }}
+          key: ${{ runner.os }}-ccache
 
       - name: "Cache HuggingFace hub cache"
         id: hf-cache
         uses: actions/cache@v4
         with:
           path: ~/.cache/huggingface/hub
-          key: ${{ runner.os }}
+          key: ${{ runner.os }}-hub-cache
 
       - name: "Install build dependencies"
         run: |
