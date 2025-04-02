@@ -101,12 +101,14 @@ jobs:
           SETUPTOOLS_SCM_PRETEND_VERSION: 0.8.0
           VLLM_TARGET_DEVICE: empty
         run: |
-          git clone --depth 1 ${{ matrix.vllm_version.repo }}
+          git clone --depth 1 --branch ${{ matrix.vllm_version.rev }} ${{ matrix.vllm_version.repo }}
           cd vllm
-          git fetch --tags
-          git checkout ${{ matrix.vllm_version.rev }} 
           python use_existing_torch.py
-          pip install -r requirements/build.txt
+          if [ -e requirements/build.txt ]; then
+            pip install -r requirements/build.txt
+          else
+            pip install -r requirements-build.txt
+          fi
           pip install --verbose . --no-build-isolation
 
       - name: "Install vLLM-Spyre plugin"
