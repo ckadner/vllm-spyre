@@ -8,14 +8,6 @@ on:
 env:
   # force output to be colored for non-tty GHA runner shell
   FORCE_COLOR: "1"
-  # facilitate testing by building vLLM for CPU when needed
-  VLLM_CPU_DISABLE_AVX512: "true"
-  VLLM_TARGET_DEVICE: "cpu"
-  VLLM_PLUGINS: "spyre"
-  # prefer index for torch cpu version
-  UV_EXTRA_INDEX_URL: "https://download.pytorch.org/whl/cpu"
-  # have uv match pip's behaviour for extra index operations
-  UV_INDEX_STRATEGY: "unsafe-best-match"
   VLLM_SPYRE_TEST_MODEL_DIR: "${{ github.workspace }}/models"
 
 concurrency:
@@ -32,7 +24,6 @@ jobs:
         os: ["ubuntu-latest"]
         python_version: ["3.12"]
         vllm_version:
-          # skip the pypi version as it will not work on CPU
           - name: "vLLM:v0.8.0"
             repo: "https://github.com/vllm-project/vllm.git"
             rev: "v0.8.0"
@@ -82,8 +73,6 @@ jobs:
 
       - name: "Install PyTorch"
         if: steps.python-cache.outputs.cache-hit != 'true'
-        env:
-          PIP_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
         run: |
           pip install torch=="2.5.1+cpu" --index-url https://download.pytorch.org/whl/cpu
 
@@ -100,18 +89,22 @@ jobs:
       - name: "Install vLLM with Spyre plugin"
         env:
           VLLM_TARGET_DEVICE: empty
+          UV_EXTRA_INDEX_URL: "https://download.pytorch.org/whl/cpu"
+          UV_INDEX_STRATEGY: "unsafe-best-match"
         run: |
-          # markupsafe==3.0.2 @ https://download.pytorch.org/whl/cpu only has wheels for cp313, not python 3.12
+          # PyTorch CPU wheels don't have markupsafe==3.0.2 python 3.12 (only cp313)
           uv add markupsafe --index force_pypi_index=https://pypi.org/simple
           uv add ${{ matrix.vllm_version.repo }}
           uv venv .venv --system-site-packages
           source .venv/bin/activate
-          uv pip install -v -e .
+          uv pip install -v -e . --system
           uv sync --frozen --group dev
 
       - name: "Download HF models"
         run: |
           mkdir -p "${VLLM_SPYRE_TEST_MODEL_DIR}"
+          
+          source .venv/bin/activate
           
           python -c "from transformers import pipeline; pipeline(\"text-generation\", model=\"JackFram/llama-160m\")"
           VARIANT=$(ls ~/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/)
@@ -126,6 +119,7 @@ jobs:
           MASTER_PORT: 12355
           MASTER_ADDR: localhost
           DISTRIBUTED_STRATEGY_IGNORE_MODULES: WordEmbedding
+          VLLM_PLUGINS: spyre
         run: |
           source .venv/bin/activate
           uv run pytest ${{ matrix.test_suite.flags }} \
