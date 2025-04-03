@@ -97,7 +97,7 @@ jobs:
           uv add ${{ matrix.vllm_version.repo }}
           uv venv .venv --system-site-packages
           source .venv/bin/activate
-          uv pip install -v -e .
+          uv pip install -v -e . --system
           uv sync --frozen --group dev
 
       - name: "Download HF models"
@@ -120,6 +120,7 @@ jobs:
           MASTER_ADDR: localhost
           DISTRIBUTED_STRATEGY_IGNORE_MODULES: WordEmbedding
           VLLM_PLUGINS: spyre
+          VLLM_USE_V1: 1
         run: |
           source .venv/bin/activate
           uv run pytest ${{ matrix.test_suite.flags }} \
