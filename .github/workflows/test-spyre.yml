@@ -1,6 +1,8 @@
-name: test-sypre
+name: test-spyre
 
-on: pull_request
+on:
+  - pull_request
+  - push
 
 jobs:
   test-spyre:
