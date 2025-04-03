@@ -95,16 +95,16 @@ jobs:
           # PyTorch CPU wheels don't have markupsafe==3.0.2 python 3.12 (only cp313)
           uv add markupsafe --index force_pypi_index=https://pypi.org/simple
           uv add ${{ matrix.vllm_version.repo }}
-          # uv venv .venv --system-site-packages
-          # source .venv/bin/activate
-          uv pip install -v -e . --system
+          uv venv .venv --system-site-packages
+          source .venv/bin/activate
+          uv pip install -v -e .
           uv sync --frozen --group dev
 
       - name: "Download HF models"
         run: |
           mkdir -p "${VLLM_SPYRE_TEST_MODEL_DIR}"
           
-          # source .venv/bin/activate
+          source .venv/bin/activate
           
           uv run python -c "from transformers import pipeline; pipeline(\"text-generation\", model=\"JackFram/llama-160m\")"
           VARIANT=$(ls ~/.cache/huggingface/hub/models--JackFram--llama-160m/snapshots/)
@@ -121,6 +121,6 @@ jobs:
           DISTRIBUTED_STRATEGY_IGNORE_MODULES: WordEmbedding
           VLLM_PLUGINS: spyre
         run: |
-          # source .venv/bin/activate
+          source .venv/bin/activate
           uv run pytest ${{ matrix.test_suite.flags }} \
             tests -v -k "${{ matrix.test_suite.tests }}"
