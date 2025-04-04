@@ -2,7 +2,16 @@ name: test-spyre
 
 on:
   pull_request:
+    branches:
+      - main
   push:
+    branches:
+      - main
+    paths:
+      - "tests/**/*.py"
+      - "vllm_spyre/**/*.py"
+      - pyproject.toml
+      - .github/workflows/test-spyre.yml
   workflow_dispatch:
 
 env:
@@ -56,7 +65,7 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: "Install PyTorch"
         run: |
@@ -72,11 +81,11 @@ jobs:
           cache-dependency-glob: |
             pyproject.toml
 
-      - name: "Install vLLM with Spyre plugin"
+      - name: "Install vLLM"
         env:
           VLLM_TARGET_DEVICE: empty
         run: |
-          # PyTorch CPU wheels don't have markupsafe==3.0.2 python 3.12 (only cp313)
+          # Torch CPU index has no Python 3.12 wheels for markupsafe==3.0.2 (only cp313)
           uv add markupsafe --index force_pypi_index=https://pypi.org/simple
           uv add ${{ matrix.vllm_version.repo }}
           uv venv .venv --system-site-packages
@@ -84,7 +93,7 @@ jobs:
           uv pip install -v -e .
           uv sync --frozen --group dev
 
-      - name: "Download HF models"
+      - name: "Download models"
         run: |
           mkdir -p "${VLLM_SPYRE_TEST_MODEL_DIR}"
           
