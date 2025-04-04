@@ -85,6 +85,7 @@ jobs:
           ignore-nothing-to-cache: true
           cache-dependency-glob: |
             pyproject.toml
+            uv.lock
 
       - name: "Install vLLM with Spyre plugin"
         env:
