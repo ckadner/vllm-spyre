@@ -89,7 +89,7 @@ jobs:
 
       - name: "Install vLLM with Spyre plugin"
         env:
-          VLLM_TARGET_DEVICE: empty
+          # VLLM_TARGET_DEVICE: empty
           UV_EXTRA_INDEX_URL: "https://download.pytorch.org/whl/cpu"
           UV_INDEX_STRATEGY: "unsafe-best-match"
         run: |
@@ -98,7 +98,8 @@ jobs:
           uv add ${{ matrix.vllm_version.repo }}
           uv venv .venv --system-site-packages
           source .venv/bin/activate
-          uv pip install -v -e . --system
+          VLLM_TARGET_DEVICE=empty uv pip install -v -e . --system
+          # uv pip install -v -e . --system
           uv sync --frozen --group dev
 
       - name: "Download HF models"
