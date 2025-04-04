@@ -1,4 +1,4 @@
-"""Verification of vLLM output by comparing with HF
+"""Verify vLLM output by comparing to HF output.
 
 Run `python -m pytest tests/test_spyre_basic.py`.
 """
