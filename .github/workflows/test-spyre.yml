@@ -59,19 +59,7 @@ jobs:
         with:
           fetch-depth: 0
 
-
-
-      - name: "Install build dependencies"
-        run: |
-          sudo apt update
-          sudo apt install --no-install-recommends -y \
-            ccache \
-            libnuma-dev \
-            libdnnl-dev \
-            opencl-dev
-
       - name: "Install PyTorch"
-        # if: steps.python-cache.outputs.cache-hit != 'true'
         run: |
           pip install torch=="2.5.1+cpu" --index-url https://download.pytorch.org/whl/cpu
 
