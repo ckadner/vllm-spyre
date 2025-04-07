@@ -1,4 +1,4 @@
-name: test-sypre
+name: Test CPU
 
 on:
   # Don't use pull_request.paths filter since this workflow is required for
@@ -24,7 +24,7 @@ env:
   UV_INDEX_STRATEGY: "unsafe-best-match"
   # facilitate testing by building vLLM for CPU when needed
   VLLM_CPU_DISABLE_AVX512: "true"
-  VLLM_TARGET_DEVICE: "cpu"
+  # VLLM_TARGET_DEVICE: "cpu"
   VLLM_PLUGINS: "spyre"
   VLLM_SPYRE_TEST_MODEL_DIR: "${{ github.workspace }}/models"
   HF_HUB_CACHE: "${{ github.workspace }}/.cache/huggingface/hub"
@@ -47,8 +47,6 @@ jobs:
             repo: "git+https://github.com/vllm-project/vllm --tag v0.8.0"
           - name: "vLLM:main"
             repo: "git+https://github.com/vllm-project/vllm --branch main"
-          - name: "ODH:main"
-            repo: "git+https://github.com/opendatahub-io/vllm --branch main"
         test_suite:
           - name: "V0"
             tests: "V0 and eager"
@@ -56,11 +54,6 @@ jobs:
           - name: "V1"
             tests: "(V1- and eager) or test_sampling_metadata_in_input_batch"
             flags: "--timeout=300 --forked"
-        exclude:
-          - vllm_version: { name: "vLLM:main" }
-            test_suite:   { name: "V1" }
-          - vllm_version: { name: "ODH:main" }
-            test_suite:   { name: "V1" }
 
     name: "${{ matrix.test_suite.name }} (${{ matrix.vllm_version.name }})"
 
@@ -84,7 +77,7 @@ jobs:
           cache-dependency-glob: |
             pyproject.toml
 
-      - name: "Install vLLM"
+      - name: "Install vLLM with Spyre plugin"
         env:
           VLLM_TARGET_DEVICE: empty
         run: |
@@ -93,7 +86,7 @@ jobs:
           uv add ${{ matrix.vllm_version.repo }}
           uv venv .venv --system-site-packages
           source .venv/bin/activate
-          uv pip install -v -e .
+          uv pip install -v .
           uv sync --frozen --group dev
 
       - name: "Download models"
