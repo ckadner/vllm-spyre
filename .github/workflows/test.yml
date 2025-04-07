@@ -1,4 +1,4 @@
-name: Test CPU
+name: Test
 
 on:
   # Don't use pull_request.paths filter since this workflow is required for
@@ -24,7 +24,7 @@ env:
   UV_INDEX_STRATEGY: "unsafe-best-match"
   # facilitate testing by building vLLM for CPU when needed
   VLLM_CPU_DISABLE_AVX512: "true"
-  # VLLM_TARGET_DEVICE: "cpu"
+  VLLM_TARGET_DEVICE: "empty"
   VLLM_PLUGINS: "spyre"
   VLLM_SPYRE_TEST_MODEL_DIR: "${{ github.workspace }}/models"
   HF_HUB_CACHE: "${{ github.workspace }}/.cache/huggingface/hub"
@@ -34,7 +34,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-spyre:
+  test:
     timeout-minutes: 20
     runs-on: ${{ matrix.os }}
     strategy:
@@ -78,8 +78,6 @@ jobs:
             pyproject.toml
 
       - name: "Install vLLM with Spyre plugin"
-        env:
-          VLLM_TARGET_DEVICE: empty
         run: |
           # Install markupsafe from PyPI, Torch CPU index only has wheels for Python 3.13
           uv add markupsafe --index force_pypi_index=https://pypi.org/simple
