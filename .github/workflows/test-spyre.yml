@@ -84,7 +84,7 @@ jobs:
         id: hub-cache
         uses: actions/cache@v4
         with:
-          path: "${HF_HUB_CACHE}"
+          path: ~/.cache/huggingface/hub
           key: ${{ runner.os }}-hub-cache
 
       - name: "Download HF models"
