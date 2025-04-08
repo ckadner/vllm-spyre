@@ -89,11 +89,11 @@ jobs:
 
       - name: "Download HF models"
         run: |
+          mkdir -p "${VLLM_SPYRE_TEST_MODEL_DIR}"
+
           # We are caching HF models (HF_HUB_CACHE) for reliability rather than speed here, as HF sometimes flakes out when downloading model files.
           # Be careful when adding models to the cache here, as the GHA cache is limited to 10 GB.
           
-          mkdir -p "${VLLM_SPYRE_TEST_MODEL_DIR}"
-
           download_jackfram_llama() {
             python -c "from transformers import pipeline; pipeline('text-generation', model='JackFram/llama-160m')"
             VARIANT=$(ls "${HF_HUB_CACHE}/models--JackFram--llama-160m/snapshots/")
