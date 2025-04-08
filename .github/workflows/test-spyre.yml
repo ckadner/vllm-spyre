@@ -111,6 +111,18 @@ jobs:
           MASTER_ADDR: localhost
           DISTRIBUTED_STRATEGY_IGNORE_MODULES: WordEmbedding
         run: |
-          source .venv/bin/activate
-          uv run pytest ${{ matrix.test_suite.flags }} \
-            tests -v -k "${{ matrix.test_suite.tests }}"
+          echo "."
+          ls -al .
+          echo "~"
+          ls -al ~
+          echo "~/.cache/huggingface/hub"
+          ls -al ~/.cache/huggingface/hub
+          echo ".cache/huggingface/hub"
+          ls -al .cache/huggingface/hub
+          echo "\"${HF_HUB_CACHE}\""
+          ls -al "${HF_HUB_CACHE}"
+          echo "${HF_HUB_CACHE}"
+          ls -al ${HF_HUB_CACHE}
+          #source .venv/bin/activate
+          #uv run pytest ${{ matrix.test_suite.flags }} \
+          #  tests -v -k "${{ matrix.test_suite.tests }}"
