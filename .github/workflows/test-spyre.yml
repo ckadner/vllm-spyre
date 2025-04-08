@@ -4,11 +4,11 @@ on:
   # Don't use pull_request.paths filter since this workflow is required for
   # all pull requests on main irrespective of file type or location
   pull_request:
-    # branches:
-    #   - main
+    branches:
+      - main
   push:
-    # branches:
-    #   - main
+    branches:
+      - main
     paths:
       - "tests/**/*.py"
       - "vllm_spyre/**/*.py"
@@ -95,19 +95,15 @@ jobs:
             python -c "from transformers import pipeline; pipeline('text-generation', model='JackFram/llama-160m')"
             VARIANT=$(ls "${HF_HUB_CACHE}/models--JackFram--llama-160m/snapshots/")
             ln -s "${HF_HUB_CACHE}/models--JackFram--llama-160m/snapshots/${VARIANT}" "${VLLM_SPYRE_TEST_MODEL_DIR}/llama-194m"
-            ls -al "${HF_HUB_CACHE}/models--JackFram--llama-160m/snapshots/"
           }
           download_roberta_large() {
             python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-roberta-large-v1')"
             VARIANT=$(ls "${HF_HUB_CACHE}/models--sentence-transformers--all-roberta-large-v1/snapshots/")
             ln -s "${HF_HUB_CACHE}/models--sentence-transformers--all-roberta-large-v1/snapshots/${VARIANT}" "${VLLM_SPYRE_TEST_MODEL_DIR}/all-roberta-large-v1"
-            ls -al "${HF_HUB_CACHE}/models--sentence-transformers--all-roberta-large-v1/snapshots/"
           }
           download_jackfram_llama &
           download_roberta_large &
           wait
-          ls "${HF_HUB_CACHE}/models--JackFram--llama-160m/snapshots/"
-          ls "${HF_HUB_CACHE}/models--sentence-transformers--all-roberta-large-v1/snapshots/"
 
       - name: "Run tests"
         env:
@@ -115,10 +111,6 @@ jobs:
           MASTER_ADDR: localhost
           DISTRIBUTED_STRATEGY_IGNORE_MODULES: WordEmbedding
         run: |
-          echo "\"${HF_HUB_CACHE}\""
-          ls -al "${HF_HUB_CACHE}"
-          echo "${HF_HUB_CACHE}"
-          ls -al ${HF_HUB_CACHE}
-          #source .venv/bin/activate
-          #uv run pytest ${{ matrix.test_suite.flags }} \
-          #  tests -v -k "${{ matrix.test_suite.tests }}"
+          source .venv/bin/activate
+          uv run pytest ${{ matrix.test_suite.flags }} \
+            tests -v -k "${{ matrix.test_suite.tests }}"
