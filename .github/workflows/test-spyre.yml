@@ -22,7 +22,7 @@ env:
   VLLM_TARGET_DEVICE: "empty"
   VLLM_PLUGINS: "spyre"
   VLLM_SPYRE_TEST_MODEL_DIR: "${{ github.workspace }}/models"
-  # HF_HUB_CACHE: "${{ github.workspace }}/.cache/huggingface/hub"
+  HF_HUB_CACHE: "${{ github.workspace }}/.cache/huggingface/hub"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -117,6 +117,10 @@ jobs:
           ls -al .
           echo "~"
           ls -al ~
+          echo "~/.cache/"
+          ls -al ~/.cache/
+          echo ".cache/"
+          ls -al .cache/
           echo "~/.cache/huggingface/hub"
           ls -al ~/.cache/huggingface/hub
           echo ".cache/huggingface/hub"
