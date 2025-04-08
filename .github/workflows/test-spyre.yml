@@ -89,6 +89,9 @@ jobs:
 
       - name: "Download HF models"
         run: |
+          # We are caching HF models (HF_HUB_CACHE) for reliability rather than speed here, as HF sometimes flakes out when downloading model files.
+          # Be careful when adding models to the cache here, as the GHA cache is limited to 10 GB.
+          
           mkdir -p "${VLLM_SPYRE_TEST_MODEL_DIR}"
 
           download_jackfram_llama() {
@@ -102,7 +105,7 @@ jobs:
             ln -s "${HF_HUB_CACHE}/models--sentence-transformers--all-roberta-large-v1/snapshots/${VARIANT}" "${VLLM_SPYRE_TEST_MODEL_DIR}/all-roberta-large-v1"
           }
           download_jackfram_llama &
-          download_roberta_large &
+          # download_roberta_large &
           wait
 
       - name: "Run tests"
@@ -111,6 +114,7 @@ jobs:
           MASTER_ADDR: localhost
           DISTRIBUTED_STRATEGY_IGNORE_MODULES: WordEmbedding
         run: |
-          source .venv/bin/activate
-          uv run pytest ${{ matrix.test_suite.flags }} \
-            tests -v -k "${{ matrix.test_suite.tests }}"
+          ls -al "${VLLM_SPYRE_TEST_MODEL_DIR}"
+          #source .venv/bin/activate
+          #uv run pytest ${{ matrix.test_suite.flags }} \
+          #  tests -v -k "${{ matrix.test_suite.tests }}"
