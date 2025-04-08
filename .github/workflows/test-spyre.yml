@@ -109,7 +109,7 @@ jobs:
           wait
 
       - name: "Save HF models cache"
-        if: github.event_name != 'pull_request'
+        if: ( github.event_name != 'pull_request' && strategy.job-index == 0 )
         id: hub-cache-save
         uses: actions/cache/save@v4
         with:
