@@ -22,7 +22,7 @@ env:
   VLLM_TARGET_DEVICE: "empty"
   VLLM_PLUGINS: "spyre"
   VLLM_SPYRE_TEST_MODEL_DIR: "${{ github.workspace }}/models"
-  HF_HUB_CACHE: "${{ github.workspace }}/.cache/huggingface/hub"
+  # HF_HUB_CACHE: "${{ github.workspace }}/.cache/huggingface/hub"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -104,6 +104,8 @@ jobs:
           download_jackfram_llama &
           download_roberta_large &
           wait
+          ls "${HF_HUB_CACHE}/models--JackFram--llama-160m/snapshots/"
+          ls "${HF_HUB_CACHE}/models--sentence-transformers--all-roberta-large-v1/snapshots/"
 
       - name: "Run tests"
         env:
