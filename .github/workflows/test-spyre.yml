@@ -28,9 +28,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
-permissions:
-  actions: write
-
 jobs:
   test:
     timeout-minutes: 20
@@ -88,7 +85,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ${{ env.HF_HUB_CACHE }}
-          key: ${{ runner.os }}-hub-cache
+          key: ${{ runner.os }}-hub-cache-${{ strategy.job-index }}
+          restore-keys: |
+            ${{ runner.os }}-hub-cache
 
       - name: "Download HF models"
         run: |
