@@ -115,6 +115,8 @@ jobs:
           DISTRIBUTED_STRATEGY_IGNORE_MODULES: WordEmbedding
         run: |
           ls -al "${VLLM_SPYRE_TEST_MODEL_DIR}"
+          ls -al "${HF_HUB_CACHE}"
+
           #source .venv/bin/activate
           #uv run pytest ${{ matrix.test_suite.flags }} \
           #  tests -v -k "${{ matrix.test_suite.tests }}"
