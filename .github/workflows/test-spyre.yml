@@ -105,7 +105,7 @@ jobs:
             ln -s "${HF_HUB_CACHE}/models--sentence-transformers--all-roberta-large-v1/snapshots/${VARIANT}" "${VLLM_SPYRE_TEST_MODEL_DIR}/all-roberta-large-v1"
           }
           download_jackfram_llama &
-          # download_roberta_large &
+          download_roberta_large &
           wait
 
       - name: "Run tests"
