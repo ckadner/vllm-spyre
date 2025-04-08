@@ -20,8 +20,8 @@ env:
   # force output to be colored for non-tty GHA runner shell
   FORCE_COLOR: "1"
   # prefer index for torch cpu version and match pip's extra index policy
-  UV_EXTRA_INDEX_URL: "https://download.pytorch.org/whl/cpu"
-  UV_INDEX_STRATEGY: "unsafe-best-match"
+  # UV_EXTRA_INDEX_URL: "https://download.pytorch.org/whl/cpu"
+  # UV_INDEX_STRATEGY: "unsafe-best-match"
   # facilitate testing by building vLLM for CPU when needed
   VLLM_CPU_DISABLE_AVX512: "true"
   VLLM_TARGET_DEVICE: "empty"
