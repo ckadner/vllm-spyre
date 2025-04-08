@@ -80,7 +80,14 @@ jobs:
           uv pip install -v .
           uv sync --frozen --group dev
 
-      - name: "Download models"
+      - name: "Cache HF models"
+        id: hub-cache
+        uses: actions/cache@v4
+        with:
+          path: "${HF_HUB_CACHE}"
+          key: ${{ runner.os }}-hub-cache
+
+      - name: "Download HF models"
         run: |
           mkdir -p "${VLLM_SPYRE_TEST_MODEL_DIR}"
 
