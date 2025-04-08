@@ -84,7 +84,7 @@ jobs:
         id: hub-cache
         uses: actions/cache@v4
         with:
-          path: ~/.cache/huggingface/hub
+          path: ${{ env.HF_HUB_CACHE }}
           key: ${{ runner.os }}-hub-cache
 
       - name: "Download HF models"
@@ -95,11 +95,13 @@ jobs:
             python -c "from transformers import pipeline; pipeline('text-generation', model='JackFram/llama-160m')"
             VARIANT=$(ls "${HF_HUB_CACHE}/models--JackFram--llama-160m/snapshots/")
             ln -s "${HF_HUB_CACHE}/models--JackFram--llama-160m/snapshots/${VARIANT}" "${VLLM_SPYRE_TEST_MODEL_DIR}/llama-194m"
+            ls -al "${HF_HUB_CACHE}/models--JackFram--llama-160m/snapshots/"
           }
           download_roberta_large() {
             python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-roberta-large-v1')"
             VARIANT=$(ls "${HF_HUB_CACHE}/models--sentence-transformers--all-roberta-large-v1/snapshots/")
             ln -s "${HF_HUB_CACHE}/models--sentence-transformers--all-roberta-large-v1/snapshots/${VARIANT}" "${VLLM_SPYRE_TEST_MODEL_DIR}/all-roberta-large-v1"
+            ls -al "${HF_HUB_CACHE}/models--sentence-transformers--all-roberta-large-v1/snapshots/"
           }
           download_jackfram_llama &
           download_roberta_large &
@@ -113,18 +115,6 @@ jobs:
           MASTER_ADDR: localhost
           DISTRIBUTED_STRATEGY_IGNORE_MODULES: WordEmbedding
         run: |
-          echo "."
-          ls -al .
-          echo "~"
-          ls -al ~
-          echo "~/.cache/"
-          ls -al ~/.cache/
-          echo ".cache/"
-          ls -al .cache/
-          echo "~/.cache/huggingface/hub"
-          ls -al ~/.cache/huggingface/hub
-          echo ".cache/huggingface/hub"
-          ls -al .cache/huggingface/hub
           echo "\"${HF_HUB_CACHE}\""
           ls -al "${HF_HUB_CACHE}"
           echo "${HF_HUB_CACHE}"
