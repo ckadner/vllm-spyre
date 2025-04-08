@@ -80,9 +80,9 @@ jobs:
           uv pip install -v .
           uv sync --frozen --group dev
 
-      - name: "Cache HF models"
-        id: hub-cache
-        uses: actions/cache@v4
+      - name: "Restore HF models cache"
+        id: hub-cache-restore
+        uses: actions/cache/restore@v4
         with:
           path: ${{ env.HF_HUB_CACHE }}
           key: ${{ runner.os }}-hub-cache
@@ -107,6 +107,14 @@ jobs:
           download_jackfram_llama &
           download_roberta_large &
           wait
+
+      - name: "Save HF models cache"
+        if: github.event_name != 'pull_request'
+        id: hub-cache-save
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.HF_HUB_CACHE }}
+          key: ${{ steps.hub-cache-restore.outputs.cache-primary-key }}
 
       - name: "Run tests"
         env:
