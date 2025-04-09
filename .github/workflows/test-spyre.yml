@@ -73,7 +73,7 @@ jobs:
             pyproject.toml
 
       - name: "Set vLLM version"
-        if: matrix.vllm_version.repo != ""
+        if: matrix.vllm_version.repo
         run: |
           uv add ${{ matrix.vllm_version.repo }}
 
