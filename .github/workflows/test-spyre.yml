@@ -109,8 +109,7 @@ jobs:
           download_jackfram_llama &
           download_roberta_large &
           wait
-          ls "${VLLM_SPYRE_TEST_MODEL_DIR}" > models.txt
-          cat models.txt
+          ls "${VLLM_SPYRE_TEST_MODEL_DIR}" > cached_models.txt
 
       - name: "Save HF models cache"
         if: ( github.event_name != 'pull_request' && strategy.job-index == 0 )
@@ -118,7 +117,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ${{ env.HF_HUB_CACHE }}
-          key: ${{ runner.os }}-hub-cache-${{ hashFiles('models.txt') }}
+          key: ${{ runner.os }}-hub-cache-${{ hashFiles('cached_models.txt') }}
 
       - name: "Run tests"
         env:
