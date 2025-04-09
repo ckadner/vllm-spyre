@@ -93,7 +93,7 @@ jobs:
         run: |
           mkdir -p "${VLLM_SPYRE_TEST_MODEL_DIR}"
 
-          # We are caching HF models (HF_HUB_CACHE) for reliability rather than speed here, as HF sometimes flakes out when downloading model files.
+          # We are caching HF models (HF_HUB_CACHE) for reliability rather than speed, since HF downloads are flaky for concurrent jobs.
           # Be careful when adding models to the cache here, as the GHA cache is limited to 10 GB.
           
           download_jackfram_llama() {
