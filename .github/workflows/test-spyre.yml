@@ -85,7 +85,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ${{ env.HF_HUB_CACHE }}
-          key: ${{ runner.os }}-hub-cache-${{ strategy.job-index }}
+          key: ${{ runner.os }}-hub-cache-${{ hashFiles('cached_models.txt') }}
           restore-keys: |
             ${{ runner.os }}-hub-cache
 
