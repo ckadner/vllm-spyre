@@ -28,9 +28,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
-permissions:
-  actions: write
-
 jobs:
   test:
     timeout-minutes: 20
@@ -112,6 +109,8 @@ jobs:
           download_jackfram_llama &
           download_roberta_large &
           wait
+          ls "${VLLM_SPYRE_TEST_MODEL_DIR}" > models.txt
+          cat models.txt
 
       - name: "Save HF models cache"
         if: ( github.event_name != 'pull_request' && strategy.job-index == 0 )
@@ -119,7 +118,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ${{ env.HF_HUB_CACHE }}
-          key: ${{ steps.hub-cache-restore.outputs.cache-primary-key }}
+          key: ${{ runner.os }}-hub-cache-${{ hashFiles('models.txt') }}
 
       - name: "Run tests"
         env:
