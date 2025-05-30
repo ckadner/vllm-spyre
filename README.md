@@ -18,3 +18,6 @@ git clone https://github.com/vllm-project/vllm-spyre.git
 cd vllm-spyre
 VLLM_TARGET_DEVICE=empty uv pip install -e .
 ```
+## Documentation
+
+Visit [vllm-spyre.readthedocs.io](https://vllm-spyre.readthedocs.io) for more information about the vLLM Spyre plugin.
