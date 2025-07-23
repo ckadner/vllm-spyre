@@ -94,7 +94,7 @@ install it using `pip`.
     pip install torch=="2.7.1"
     ```
 
-!!! note
+???+ note
     On Linux the `+cpu` package should be installed, since we don't need any of
     the `cuda` dependencies which are included by default for Linux installs.
     This requires `--index-url https://download.pytorch.org/whl/cpu` on Linux.
