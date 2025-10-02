@@ -155,18 +155,22 @@ jobs:
       - name: "Standardize HF model names for caching"
         id: standardize-names
         run: |
+          if [[ -n "${{ matrix.test_suite.hf_model }}" ]]; then
+            model="${{ matrix.test_suite.hf_model }}"
+            revision="${{ matrix.test_suite.hf_model_rev }}"
+          else
+            model="${{ env.DEFAULT_HF_MODEL }}"
+            revision="${{ env.DEFAULT_HF_MODEL_REV }}"
+          fi
           # replace '/' with '--'
-          model="${{ matrix.test_suite.hf_model || env.DEFAULT_HF_MODEL }}"
-          model_2="${{ matrix.test_suite.hf_model_2 }}"
-
-          revision="${{ matrix.test_suite.hf_model_rev || env.DEFAULT_HF_MODEL_REV }}"
-          revision_2="${{ matrix.test_suite.hf_model_2_rev}}"
-
           safe_name="${model//\//--}"
           echo "model_key=${safe_name}_${revision}" >> "$GITHUB_ENV"
           echo "model_path=${HF_HUB_CACHE}/models--$safe_name" >> "$GITHUB_ENV"
           
-          if [[ -n "$model_2" ]]; then
+          if [[ -n "${{ matrix.test_suite.hf_model_2 }}" ]]; then
+            model_2="${{ matrix.test_suite.hf_model_2 }}"
+            revision_2="${{ matrix.test_suite.hf_model_2_rev}}"
+            # replace '/' with '--'
             safe_name_2="${model_2//\//--}"
             echo "model_key_2=${safe_name_2}_${revision_2}" >> "$GITHUB_ENV"
             echo "model_path_2=${HF_HUB_CACHE}/models--${safe_name_2}" >> "$GITHUB_ENV"
@@ -209,7 +213,7 @@ jobs:
           hf_model="${{ matrix.test_suite.hf_model || env.DEFAULT_HF_MODEL }}"
           hf_model_2="${{ matrix.test_suite.hf_model_2 }}"
 
-          models=("$hf_model" "$hf_model_2")
+          models=(${hf_model} ${hf_model_2})
 
           for model in "${models[@]}"; do
             echo "Downloading $model ..."
