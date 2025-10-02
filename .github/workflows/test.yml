@@ -204,39 +204,48 @@ jobs:
           # to expire after 7 days.
 
           download_granite_or_llama() {
-            python -c "from transformers import pipeline; pipeline('text-generation', model='$1', revision='$2');"
+            python -c "from transformers import pipeline; pipeline('text-generation', model='$1', revision='${2:-main}');"
           }
           download_roberta_large() {
-            python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('$1', revision='$2')"
+            python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('$1', revision='${2:-main}')"
           }
-
-          hf_model="${{ matrix.test_suite.hf_model || env.DEFAULT_HF_MODEL }}"
-          hf_model_2="${{ matrix.test_suite.hf_model_2 }}"
-
-          models=(${hf_model} ${hf_model_2})
-
-          for model in "${models[@]}"; do
-            echo "Downloading $model ..."
+          download_model_with_revision() {
+            model="$1"
+            revision="$2"
+            echo "Downloading '$model' with revision '$2' ..."
             case "$model" in
               "ibm-ai-platform/micro-g3.3-8b-instruct-1b"*)
-                download_granite_or_llama "$model" &
+                download_granite_or_llama "$model" $revision
                 ;;
               "JackFram/llama-160m")
-                download_granite_or_llama "$model" &
+                download_granite_or_llama "$model" $revision
                 ;;
               "sentence-transformers/all-roberta-large-v1")
-                download_roberta_large "$model" &
+                download_roberta_large "$model" $revision
                 ;;
               "cross-encoder/stsb-roberta-large")
-                download_roberta_large "$model" &
+                download_roberta_large "$model" $revision
                 ;;
               *)
                 echo "No download method found for: $model";
                 exit 1
                 ;;
             esac
-          done
+          }
+          if [[ -n "${{ matrix.test_suite.hf_model }}" ]]; then
+            hf_model="${{ matrix.test_suite.hf_model }}"
+            hf_revision="${{ matrix.test_suite.hf_model_rev }}"
+          else
+            hf_model="${{ env.DEFAULT_HF_MODEL }}"
+            hf_revision="${{ env.DEFAULT_HF_MODEL_REV }}"
+          fi
+          hf_model_2="${{ matrix.test_suite.hf_model_2 }}"
+          hf_revision_2="${{ matrix.test_suite.hf_model_2_rev }}"
 
+          download_model_with_revision "$hf_model" $hf_revision &
+          if [[ -n "$hf_model_2" ]]; then
+            download_model_with_revision "$hf_model_2" $hf_revision_2 &
+          fi
           wait
 
       - name: "Save HF models cache"
