@@ -262,10 +262,7 @@ class SpyrePlatform(Platform):
         ] if cls._warmup_shapes and not envs_spyre.VLLM_SPYRE_USE_CB else None
 
         validate_runtime_configuration(
-            model=model_config.model,
-            tp_size=parallel_config.tensor_parallel_size,
-            max_model_len=model_config.max_model_len,
-            max_num_seqs=scheduler_config.max_num_seqs,
+            vllm_config=model_config.model,
             warmup_shapes=warmup_shape_tuples)
 
         handle_disable_compilation(vllm_config, is_decoder)
