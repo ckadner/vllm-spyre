@@ -222,10 +222,12 @@ jobs:
           model_2="${{ matrix.test_suite.hf_model_2 }}"
           revision_2="${{ matrix.test_suite.hf_model_2_rev }}"
 
-          python3 tools/download_model.py -m "$model" -r "${revision:-main}" &
+          # python3 tools/download_model.py -m "$model" -r "${revision:-main}" &
+          huggingface-cli download "$model" --revision "${revision:-main}" &
 
           if [[ -n "$model_2" ]]; then
-            python3 tools/download_model.py -m "$model_2" -r "${revision_2:-main}" &
+            # python3 tools/download_model.py -m "$model_2" -r "${revision_2:-main}" &
+            huggingface-cli download "$model_2" --revision "${revision_2:-main}" &
           fi
 
           wait
