@@ -9,4 +9,8 @@ When ready to make a new release:
 3. Once the release is ready, publish it by clicking the "Publish release" button.
 4. The `build-and-publish.yaml` workflow will trigger when the release is published, and push a new wheel to pypi
 
-We could automate the process of creating the release on GitHub as well, however there is a slight snag that github actions cannot trigger from events that were performed by github actions. See: https://github.com/semantic-release/semantic-release/discussions/1906
+<!-- markdownlint-disable no-bare-urls -->
+
+We could automate the process of creating the release on GitHub as well, however,
+there is a slight snag that GitHub Actions cannot trigger from events that were
+performed by GitHub Actions. See: https://github.com/semantic-release/semantic-release/discussions/1906
