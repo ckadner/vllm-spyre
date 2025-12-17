@@ -31,12 +31,12 @@ inputs:
   
   # Models under test
   hf_model:
-    description: "HF format model name for the model to load from cache for testing"
+    description: "HF style model name for the model to load from cache for testing"
     type: string
     required: false
     default: "ibm-ai-platform/micro-g3.3-8b-instruct-1b"
   hf_model_rev:
-    description: "The HF revision of the model to load from cache for testing"
+    description: "The HF revision of the model to load into cache for testing"
     type: string
     required: false
     default: "6e9c6465a9d7e5e9fa35004a29f0c90befa7d23f"
@@ -156,6 +156,9 @@ runs:
         # previous cache blob can then be removed by an admin or can be left
         # to expire after 7 days.
 
+        
+        # ### TODO: env.DEFAULT_MODEL ???
+        
         if [[ -n "${{ inputs.hf_model }}" ]]; then
           model="${{ inputs.hf_model }}"
           revision="${{ inputs.hf_model_rev }}"
